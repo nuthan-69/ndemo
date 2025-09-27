@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5e903a09-2397-48e0-bcef-9f872abbf21d" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<snowflake:snowflake-config name="Snowflake_Config" doc:name="Snowflake Config" doc:id="a17a3dd9-4423-4f58-8eaf-d6464be60721" >
+		<snowflake:snowflake-connection accountName="hk59352.central-india.azure" warehouse="COMPUTE_WH" database="company3" schema="comp3" user="Nuthan6699" password="Nuthan@12345678" role="ACCOUNTADMIN" />
+	</snowflake:snowflake-config>
+	<flow name="snowflake.demoFlow" doc:id="0fe40a35-a8f2-4ed8-84c6-58e43dd6d9da" >
+		<http:listener doc:name="Listener" doc:id="9bdafb8c-da4f-4a45-85a7-28024aa188a0" config-ref="HTTP_Listener_config" path="snowflake"/>
+		<logger level="INFO" doc:name="Flow Start Logger" doc:id="d5fc92f5-bf0c-4293-b22c-ae673c40abac" message='#["flow strt logger"]'/>
+		<!-- [STUDIO:"Select"]<snowflake:select doc:name="Select" doc:id="3747fa46-8f5b-4242-aa4e-2f7014058caa" config-ref="Snowflake_Config">
+			<snowflake:sql ><![CDATA[select * from Employees&#93;&#93;></snowflake:sql>
+		</snowflake:select> [STUDIO] -->
+		<snowflake:insert doc:name="Insert" doc:id="9528a45e-f1ef-4348-a97d-315408f56a2b" config-ref="Snowflake_Config">
+			<snowflake:sql><![CDATA[insert into infosys (employeeid,FirstName,LastName,salary) values (:employeeid,:FirstName,:LastName,:salary) 
+]]></snowflake:sql>
+			<snowflake:input-parameters><![CDATA[#[{
+	"employeeid": payload.employeeid,
+	"FirstName": payload.FirstName,
+	"LastName": payload.LastName,
+	"salary": payload.salary
+
+	
+}]]]></snowflake:input-parameters>
+		</snowflake:insert>
+		<ee:transform doc:name="Transform Message" doc:id="aa18ea90-66db-4183-8a98-511f2572c520" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="2588f457-e13b-4021-95d6-4002ec5be090" >
+			<route >
+				<snowflake:insert doc:name="Insert" doc:id="e48a6953-ae7d-4c03-aa30-c7ed266df9da" config-ref="Snowflake_Config">
+					<snowflake:sql ><![CDATA[insert into wipro (employeeid,FirstName,LastName,salary) values (:employeeid,:FirstName,:LastName,:salary) 
+]]></snowflake:sql>
+					<snowflake:input-parameters ><![CDATA[#[{
+	"employeeid": payload.employeeid,
+	"FirstName": payload.FirstName,
+	"LastName": payload.LastName,
+	"salary": payload.salary
+
+	
+}]]]></snowflake:input-parameters>
+				</snowflake:insert>
+			</route>
+		</scatter-gather>
+		<logger level="INFO" doc:name="Logger" doc:id="d2d38799-2d58-473f-9390-3ca21a565065" message="#[payload]"/>
+	</flow>
+</mule>
