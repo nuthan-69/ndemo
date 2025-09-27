@@ -14,7 +14,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	</snowflake:snowflake-config>
 	<flow name="snowflake.demoFlow" doc:id="0fe40a35-a8f2-4ed8-84c6-58e43dd6d9da" >
 		<http:listener doc:name="Listener" doc:id="9bdafb8c-da4f-4a45-85a7-28024aa188a0" config-ref="HTTP_Listener_config" path="snowflake"/>
-		<logger level="INFO" doc:name="Flow Start Logger" doc:id="d5fc92f5-bf0c-4293-b22c-ae673c40abac" message='#["flow strt logger"]'/>
+		<logger level="INFO" doc:name="Flow Start Logger" doc:id="d5fc92f5-bf0c-4293-b22c-ae673c40abac" message='#["flowsuccess  strt logger"]'/>
 		<!-- [STUDIO:"Select"]<snowflake:select doc:name="Select" doc:id="3747fa46-8f5b-4242-aa4e-2f7014058caa" config-ref="Snowflake_Config">
 			<snowflake:sql ><![CDATA[select * from Employees&#93;&#93;></snowflake:sql>
 		</snowflake:select> [STUDIO] -->
